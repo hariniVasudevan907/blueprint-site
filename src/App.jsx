@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Login from "./Login";
+import Signup from "./Signup";
+import ForgotPassword from "./ForgotPassword";
 
 const generateId = () => Math.floor(Math.random() * 1000000).toString();
 
@@ -7,6 +9,7 @@ export default function App() {
   const [view, setView] = useState("properties");
   const [dark, setDark] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authView, setAuthView] = useState("login");
 
   const [customers, setCustomers] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -95,7 +98,23 @@ export default function App() {
 
     </div>
   ) : (
-    <Login onLogin={() => setIsLoggedIn(true)} />
+    <>
+      {authView === "login" && (
+        <Login
+          onLogin={() => setIsLoggedIn(true)}
+          onSwitchToSignup={() => setAuthView("signup")}
+          onSwitchToForgot={() => setAuthView("forgot")}
+        />
+      )}
+
+      {authView === "signup" && (
+        <Signup onSwitchToLogin={() => setAuthView("login")} />
+      )}
+
+      {authView === "forgot" && (
+        <ForgotPassword onSwitchToLogin={() => setAuthView("login")} />
+      )}
+    </>
   );
 }
 
