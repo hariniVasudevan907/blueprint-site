@@ -2,95 +2,133 @@ import { useState } from "react";
 
 export default function App() {
   const [role, setRole] = useState("founder");
-  const [view, setView] = useState("repository");
+
+  const [customers, setCustomers] = useState([]);
+  const [searchPhone, setSearchPhone] = useState("");
+
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    pg: "",
+    paid: "",
+    due: ""
+  });
+
+  const validateForm = () => {
+    const phoneRegex = /^[0-9]{10}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!form.name || !form.phone || !form.email) {
+      alert("Name, Phone and Email are required");
+      return false;
+    }
+
+    if (!phoneRegex.test(form.phone)) {
+      alert("Phone must be 10 digits");
+      return false;
+    }
+
+    if (!emailRegex.test(form.email)) {
+      alert("Invalid email format");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleAddCustomer = () => {
+    if (!validateForm()) return;
+
+    setCustomers([...customers, form]);
+
+    setForm({
+      name: "",
+      phone: "",
+      email: "",
+      pg: "",
+      paid: "",
+      due: ""
+    });
+  };
+
+  const handleDelete = (index) => {
+    const updated = customers.filter((_, i) => i !== index);
+    setCustomers(updated);
+  };
+
+  const filteredCustomers = customers.filter((c) =>
+    c.phone.includes(searchPhone)
+  );
 
   return (
     <div className="app">
       <style>{`
         body {
           margin: 0;
-          font-family: Arial;
-          background: #0f0f0f;
-          color: white;
+          font-family: 'Segoe UI', sans-serif;
+          background: #0d1117;
+          color: #e6edf3;
+        }
+
+        .layout {
+          display: flex;
+          height: 100vh;
+        }
+
+        .sidebar {
+          width: 220px;
+          background: #161b22;
+          padding: 20px;
+          border-right: 1px solid #30363d;
+        }
+
+        .logo {
+          font-size: 22px;
+          font-weight: bold;
+          margin-bottom: 30px;
+          color: #ff4d4d;
+        }
+
+        .main {
+          flex: 1;
+          padding: 30px;
         }
 
         .topbar {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 12px 20px;
-          background: #141414;
-          border-bottom: 2px solid #ff3b3b;
+          margin-bottom: 25px;
         }
 
-        .logo {
-          font-size: 28px;
-          font-weight: bold;
-          color: #ff3b3b;
-        }
-
-        .nav {
-          display: flex;
-          gap: 10px;
-          align-items: center;
-        }
-
-        select, button {
-          background: #1f1f1f;
+        select {
+          background: #161b22;
+          border: 1px solid #30363d;
           color: white;
-          border: 1px solid #333;
-          padding: 6px 10px;
+          padding: 8px;
           border-radius: 6px;
-          cursor: pointer;
-        }
-
-        button:hover {
-          background: #ff3b3b;
-        }
-
-        .container {
-          padding: 20px;
-        }
-
-        .grid {
-          display: grid;
-          grid-template-columns: 1fr 2fr;
-          gap: 20px;
         }
 
         .card {
-          background: #1b1b1b;
-          padding: 15px;
-          border-radius: 10px;
+          background: #161b22;
+          padding: 25px;
+          border-radius: 12px;
+          border: 1px solid #30363d;
         }
 
-        .smallBox {
-          border: 1px solid #333;
-          padding: 10px;
-          margin-top: 10px;
-          text-align: center;
-          border-radius: 6px;
+        .sectionTitle {
+          margin-bottom: 15px;
+          font-size: 18px;
+          font-weight: 600;
         }
 
-        .fileGrid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 8px;
-          margin-top: 10px;
-        }
-
-        .file {
-          height: 30px;
-          background: #222;
-          border: 1px solid #333;
-        }
-
-        input, textarea {
+        input {
           width: 100%;
-          margin-top: 8px;
-          padding: 8px;
-          background: #111;
-          border: 1px solid #333;
+          padding: 10px;
+          margin-top: 5px;
+          background: #0d1117;
+          border: 1px solid #30363d;
           color: white;
           border-radius: 6px;
         }
@@ -98,149 +136,179 @@ export default function App() {
         .formGrid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 10px;
+          gap: 20px;
+          margin-top: 10px;
         }
 
-        .updateBtn {
-          margin-top: 10px;
-          padding: 10px 18px;
-          background: #ff3b3b;
+        .formGroup {
+          display: flex;
+          flex-direction: column;
+        }
+
+        label {
+          font-size: 13px;
+          color: #8b949e;
+        }
+
+        .btn {
+          margin-top: 20px;
+          padding: 12px;
+          background: #ff4d4d;
           border: none;
-          border-radius: 20px;
+          border-radius: 6px;
           cursor: pointer;
-          width: fit-content;
+          color: white;
+          width: 200px;
         }
 
-        .list {
-          margin-top: 10px;
+        .searchBox {
+          margin-bottom: 20px;
+        }
+
+        .table {
+          margin-top: 25px;
         }
 
         .row {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          padding: 8px;
-          border-bottom: 1px solid #222;
+          grid-template-columns: repeat(7, 1fr);
+          padding: 12px;
+          border-bottom: 1px solid #30363d;
+          align-items: center;
         }
 
-        .headerRow {
+        .header {
           font-weight: bold;
-          border-bottom: 2px solid #333;
+          background: #0d1117;
         }
 
-        .filter {
-          margin-bottom: 10px;
-        }
-
-        .bubble {
-          display: inline-block;
+        .deleteBtn {
+          background: #ff4d4d;
+          border: none;
           padding: 6px 10px;
-          background: #ff3b3b;
-          border-radius: 20px;
-          margin-bottom: 10px;
+          color: white;
+          border-radius: 4px;
+          cursor: pointer;
         }
       `}</style>
 
-      {/* TOP BAR */}
-      <div className="topbar">
-        <div className="logo">RoomAdda</div>
+      <div className="layout">
 
-        <div className="nav">
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="founder">Founder</option>
-            <option value="employee">Employee</option>
-            <option value="customer">Customer</option>
-          </select>
-
-          <button onClick={() => setView("repository")}>Repository</button>
-          <button onClick={() => setView("customers")}>Customers</button>
-          <button onClick={() => setView("support")}>Support</button>
+        {/* SIDEBAR */}
+        <div className="sidebar">
+          <div className="logo">RoomAdda</div>
         </div>
-      </div>
 
-      {/* REPOSITORY VIEW */}
-      {view === "repository" && (
-        <div className="container grid">
-          {/* LEFT */}
-          <div className="card">
-            <h3>Repository</h3>
+        {/* MAIN */}
+        <div className="main">
 
-            <div className="smallBox">Viewing</div>
-            <div className="smallBox">Adding</div>
+          <div className="topbar">
+            <h2>Customer Management</h2>
 
-            <h4 style={{ marginTop: 15 }}>Files</h4>
-            <div className="fileGrid">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="file"></div>
-              ))}
-            </div>
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="founder">Founder</option>
+              <option value="employee">Employee</option>
+            </select>
           </div>
 
-          {/* RIGHT */}
           <div className="card">
-            <h3>Update / Add PG</h3>
+
+            {/* SEARCH */}
+            <div className="searchBox">
+              <input
+                placeholder="Search by phone number"
+                value={searchPhone}
+                onChange={(e) => setSearchPhone(e.target.value)}
+              />
+            </div>
+
+            {/* FORM */}
+            <div className="sectionTitle">Add Customer</div>
 
             <div className="formGrid">
-              <input placeholder="Name" />
-              <input placeholder="Sharing" />
-              <input placeholder="Type of PG" />
-              <input placeholder="Rent" />
-              <input placeholder="Negotiable Rent" />
-              <input placeholder="Deposit" />
-              <input placeholder="Maintenance" />
-              <input placeholder="Food Menu Link" />
-              <input placeholder="Video Link" />
-              <input placeholder="Location" />
+
+              <div className="formGroup">
+                <label>Name</label>
+                <input value={form.name}
+                  onChange={(e)=>setForm({...form,name:e.target.value})}/>
+              </div>
+
+              <div className="formGroup">
+                <label>Phone</label>
+                <input value={form.phone}
+                  onChange={(e)=>setForm({...form,phone:e.target.value})}/>
+              </div>
+
+              <div className="formGroup">
+                <label>Email</label>
+                <input value={form.email}
+                  onChange={(e)=>setForm({...form,email:e.target.value})}/>
+              </div>
+
+              <div className="formGroup">
+                <label>PG Name</label>
+                <input value={form.pg}
+                  onChange={(e)=>setForm({...form,pg:e.target.value})}/>
+              </div>
+
+              <div className="formGroup">
+                <label>Paid Amount</label>
+                <input value={form.paid}
+                  onChange={(e)=>setForm({...form,paid:e.target.value})}/>
+              </div>
+
+              <div className="formGroup">
+                <label>Due Amount</label>
+                <input value={form.due}
+                  onChange={(e)=>setForm({...form,due:e.target.value})}/>
+              </div>
+
             </div>
 
-            <textarea placeholder="Special Comment" rows={3} />
+            <button className="btn" onClick={handleAddCustomer}>
+              Add Customer
+            </button>
 
-            {(role === "founder" || role === "employee") && (
-              <button className="updateBtn">Update</button>
-            )}
-          </div>
-        </div>
-      )}
+            {/* TABLE */}
+            <div className="table">
 
-      {/* CUSTOMERS VIEW */}
-      {view === "customers" && (
-        <div className="container card">
-          <h3>Customer Support</h3>
+              <div className="row header">
+                <div>Name</div>
+                <div>Phone</div>
+                <div>Email</div>
+                <div>PG</div>
+                <div>Paid</div>
+                <div>Due</div>
+                <div>Action</div>
+              </div>
 
-          <div className="filter">
-            <input placeholder="Filter Type / No" />
-          </div>
+              {filteredCustomers.map((c, i) => (
+                <div className="row" key={i}>
+                  <div>{c.name}</div>
+                  <div>{c.phone}</div>
+                  <div>{c.email}</div>
+                  <div>{c.pg}</div>
+                  <div>{c.paid}</div>
+                  <div>{c.due}</div>
 
-          <div className="row headerRow">
-            <div>Customer</div>
-            <div>Gender</div>
-            <div>Phone</div>
-            <div>Email</div>
-            <div>Due Amt</div>
-          </div>
+                  <div>
+                    {role === "founder" && (
+                      <button
+                        className="deleteBtn"
+                        onClick={() => handleDelete(i)}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
 
-          {[1, 2, 3, 4].map((i) => (
-            <div className="row" key={i}>
-              <div>Customer {i}</div>
-              <div>Male/Female</div>
-              <div>9999999999</div>
-              <div>mail{i}@gmail.com</div>
-              <div>0</div>
             </div>
-          ))}
 
-          {role === "founder" && <div className="bubble">+ Add Customer</div>}
+          </div>
         </div>
-      )}
-
-      {/* SUPPORT */}
-      {view === "support" && (
-        <div className="container card">
-          <h3>Role Access</h3>
-          <p>Founder: Full Access</p>
-          <p>Employee: Limited Access</p>
-          <p>Customer: View Only</p>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
