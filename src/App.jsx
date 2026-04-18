@@ -12,92 +12,106 @@ export default function App() {
   const [properties, setProperties] = useState([]);
   const [employees, setEmployees] = useState([]);
 
-  return (
-return isLoggedIn ? (
-    <div className={dark ? "app dark" : "app light"}>
-      <style>{`
-      *{box-sizing:border-box}
-      body{margin:0;font-family:Arial}
+  import { useState } from "react";
+  import Login from "./Login";
 
-      .app{min-height:100vh;width:100vw}
+  const generateId = () => Math.floor(Math.random() * 1000000).toString();
 
-      .dark{background:linear-gradient(135deg,#0f0f0f,#1a1a1a);color:white}
-      .light{background:#f5f5f5;color:black}
+  export default function App() {
+    const [view, setView] = useState("properties");
+    const [dark, setDark] = useState(true);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-      .topbar{display:flex;justify-content:space-between;padding:20px 40px;border-bottom:2px solid red}
-      .logo{font-size:30px;font-weight:bold;color:red}
-      .nav{display:flex;gap:12px}
+    const [customers, setCustomers] = useState([]);
+    const [properties, setProperties] = useState([]);
+    const [employees, setEmployees] = useState([]);
 
-      button{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;transition:.3s}
-      button:hover{background:red;color:white;transform:translateY(-2px)}
+    return isLoggedIn ? (
+      <div className={dark ? "app dark" : "app light"}>
+        <style>{`
+        *{box-sizing:border-box}
+        body{margin:0;font-family:Arial}
 
-      .container{padding:40px;width:100%}
+        .app{min-height:100vh;width:100vw}
 
-      .card{
-        padding:25px;
-        border-radius:16px;
-        margin-bottom:30px;
-        backdrop-filter:blur(10px);
-      }
+        .dark{background:linear-gradient(135deg,#0f0f0f,#1a1a1a);color:white}
+        .light{background:#f5f5f5;color:black}
 
-      .dark .card{background:rgba(255,255,255,0.05)}
-      .light .card{background:white}
+        .topbar{display:flex;justify-content:space-between;padding:20px 40px;border-bottom:2px solid red}
+        .logo{font-size:30px;font-weight:bold;color:red}
+        .nav{display:flex;gap:12px}
 
-      input,select{
-        width:100%;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #444;
-        background:inherit;color:inherit;transition:.2s
-      }
+        button{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;transition:.3s}
+        button:hover{background:red;color:white;transform:translateY(-2px)}
 
-      input:focus,select:focus{transform:scale(1.05);border-color:red}
+        .container{padding:40px;width:100%}
 
-      .formGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+        .card{
+          padding:25px;
+          border-radius:16px;
+          margin-bottom:30px;
+          backdrop-filter:blur(10px);
+        }
 
-      .addBtn{
-        margin-top:20px;
-        width:220px;
-        background:linear-gradient(45deg,red,orange);
-        color:white;
-        font-weight:bold;
-      }
+        .dark .card{background:rgba(255,255,255,0.05)}
+        .light .card{background:white}
 
-      .row{
-        display:grid;
-        grid-template-columns:repeat(8,1fr);
-        padding:12px;
-        text-align:center;
-        border-radius:8px;
-        margin-top:5px;
-      }
+        input,select{
+          width:100%;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #444;
+          background:inherit;color:inherit;transition:.2s
+        }
 
-      .headerRow{font-weight:bold;background:rgba(255,0,0,0.2)}
-      .row:hover{background:rgba(255,255,255,0.1)}
+        input:focus,select:focus{transform:scale(1.05);border-color:red}
 
-      .searchBar{display:flex;gap:10px;margin-bottom:15px}
+        .formGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
 
-      .tag{padding:5px 12px;border-radius:20px;font-size:12px}
-      .green{background:#00c853}
-      .yellow{background:#ffab00}
-      .red{background:#d50000}
-    `}</style>
+        .addBtn{
+          margin-top:20px;
+          width:220px;
+          background:linear-gradient(45deg,red,orange);
+          color:white;
+          font-weight:bold;
+        }
 
-      <div className="topbar">
-        <div className="logo">RoomAdda</div>
-        <div className="nav">
-          <button onClick={() => setView("customers")}>Customers</button>
-          <button onClick={() => setView("properties")}>Properties</button>
-          <button onClick={() => setView("employees")}>Employees</button>
-          <button onClick={() => setDark(!dark)}>{dark ? "Light" : "Dark"}</button>
+        .row{
+          display:grid;
+          grid-template-columns:repeat(8,1fr);
+          padding:12px;
+          text-align:center;
+          border-radius:8px;
+          margin-top:5px;
+        }
+
+        .headerRow{font-weight:bold;background:rgba(255,0,0,0.2)}
+        .row:hover{background:rgba(255,255,255,0.1)}
+
+        .searchBar{display:flex;gap:10px;margin-bottom:15px}
+
+        .tag{padding:5px 12px;border-radius:20px;font-size:12px}
+        .green{background:#00c853}
+        .yellow{background:#ffab00}
+        .red{background:#d50000}
+      `}</style>
+
+        <div className="topbar">
+          <div className="logo">RoomAdda</div>
+          <div className="nav">
+            <button onClick={() => setView("customers")}>Customers</button>
+            <button onClick={() => setView("properties")}>Properties</button>
+            <button onClick={() => setView("employees")}>Employees</button>
+            <button onClick={() => setDark(!dark)}>{dark ? "Light" : "Dark"}</button>
+          </div>
         </div>
+
+        {view === "customers" && <Customers customers={customers} setCustomers={setCustomers} properties={properties} employees={employees} />}
+        {view === "properties" && <Properties properties={properties} setProperties={setProperties} customers={customers} />}
+        {view === "employees" && <Employees employees={employees} setEmployees={setEmployees} />}
+
       </div>
-
-      {view === "customers" && <Customers customers={customers} setCustomers={setCustomers} properties={properties} employees={employees} />}
-      {view === "properties" && <Properties properties={properties} setProperties={setProperties} customers={customers} />}
-      {view === "employees" && <Employees employees={employees} setEmployees={setEmployees} />}
-
-    </div>
-  ) : (
-    <Login onLogin={() => setIsLoggedIn(true)} />
-  );
+    ) : (
+      <Login onLogin={() => setIsLoggedIn(true)} />
+    );
+  }
 
   // ================= CUSTOMERS =================
   function Customers({ customers, setCustomers, properties, employees }) {
