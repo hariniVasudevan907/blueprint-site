@@ -304,248 +304,424 @@ export default function App() {
   return isLoggedIn ? (
     <div className={dark ? "app dark" : "app light"}>
       <style>{`
-      *{box-sizing:border-box}
-      body{margin:0;font-family:Arial}
+      /* ═══════════════════════════════════════════════
+         ROOMADDA DESIGN SYSTEM
+         Token Reference:
+           radius-sm : 8px   radius-md : 12px  radius-lg : 16px  radius-xl : 20px
+           gap-sm    : 10px  gap-md    : 20px  gap-lg    : 30px
+           pad-card  : 28px  pad-cont  : 40px
+      ═══════════════════════════════════════════════ */
 
-      .app{min-height:100vh;width:100vw; overflow-x: hidden}
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-      .dark{background:linear-gradient(135deg,#0f0f0f,#1a1a1a);color:white}
-      .light{background:#f5f5f5;color:black}
+      *, *::before, *::after { box-sizing: border-box; }
 
-      /* ── Topbar ── */
-      .topbar{
-        display:flex; justify-content:space-between; align-items:center;
-        padding:14px 30px;
-        background:rgba(0,0,0,0.7);
-        backdrop-filter:blur(12px);
-        border-bottom:1px solid rgba(255,255,255,0.08);
-        position:sticky; top:0; z-index:100;
-      }
-      .logo{
-        font-size:22px; font-weight:800; color:red;
-        letter-spacing:1.5px; text-shadow:0 0 10px rgba(255,0,0,0.45);
-        flex-shrink:0;
+      body {
+        margin: 0;
+        font-family: 'Inter', Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
       }
 
-      /* Nav pill group */
-      .navPillGroup{
-        display:flex; gap:6px; align-items:center;
-        background:rgba(255,255,255,0.04);
-        padding:6px 8px; border-radius:999px;
-        overflow-x:auto; scrollbar-width:none;
-      }
-      .navPillGroup::-webkit-scrollbar{display:none}
+      /* ── Base App ── */
+      .app { min-height: 100vh; width: 100vw; overflow-x: hidden; }
+      .dark { background: linear-gradient(135deg, #0f0f0f, #1a1a1a); color: #f0f0f0; }
+      .light { background: #f4f4f6; color: #111; }
 
-      /* Individual pill button */
-      .navBtn{
-        padding:7px 15px; border-radius:999px;
-        background:transparent; color:#bbb;
-        border:1px solid transparent;
-        font-size:13px; font-weight:500;
-        cursor:pointer; transition:all 0.25s ease;
-        white-space:nowrap; flex-shrink:0;
-      }
-      .navBtn:hover{
-        background:rgba(255,255,255,0.09); color:white;
-        transform:scale(1.04); border-color:transparent;
-      }
-      .navBtn.active{
-        background:linear-gradient(45deg,red,orange);
-        color:white; border:none;
-        box-shadow:0 3px 12px rgba(255,60,0,0.4);
-      }
-      .navBtn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
-
-      /* Right-side actions */
-      .navActions{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
-      .themeBtn{
-        padding:7px 14px; border-radius:999px;
-        background:rgba(255,255,255,0.07);
-        color:inherit; border:1px solid rgba(255,255,255,0.12);
-        font-size:13px; cursor:pointer; transition:0.25s;
-      }
-      .themeBtn:hover{ background:rgba(255,255,255,0.14); color:white; transform:none; }
-      .avatar{
-        width:36px; height:36px; border-radius:50%; flex-shrink:0;
-        background:linear-gradient(45deg,red,orange);
-        display:flex; align-items:center; justify-content:center;
-        font-size:14px; font-weight:800; color:white;
-        box-shadow:0 2px 10px rgba(255,60,0,0.4);
+      /* ── Page container ── */
+      .container {
+        padding: 40px;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
       }
 
-      button{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;transition:.3s}
-      button:hover{background:red;color:white;transform:translateY(-2px)}
-      button:disabled{opacity: 0.5; cursor: not-allowed; transform: none;}
-
-      .container{padding:40px;width:100%}
-
-      .card{
-        padding:30px;
-        border-radius:20px;
-        margin-bottom:30px;
-        backdrop-filter:blur(10px);
-        transition: 0.3s;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      /* ══════════════════════════════════════
+         NAVBAR
+      ══════════════════════════════════════ */
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 30px;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .logo {
+        font-size: 22px;
+        font-weight: 800;
+        color: red;
+        letter-spacing: 1.5px;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        flex-shrink: 0;
+        user-select: none;
+      }
+      .navPillGroup {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 5px 7px;
+        border-radius: 999px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .navPillGroup::-webkit-scrollbar { display: none; }
+      .navBtn {
+        padding: 7px 14px;
+        border-radius: 999px;
+        background: transparent;
+        color: #aaa;
+        border: 1px solid transparent;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.22s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .navBtn:hover {
+        background: rgba(255, 255, 255, 0.09);
+        color: white;
+        transform: scale(1.04);
+      }
+      .navBtn.active {
+        background: linear-gradient(45deg, red, orange);
+        color: white;
+        border: none;
+        box-shadow: 0 3px 12px rgba(255, 60, 0, 0.45);
+      }
+      .navAction s { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+      .navActions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+      .themeBtn {
+        padding: 7px 13px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+        color: inherit;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-family: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.22s;
+      }
+      .themeBtn:hover { background: rgba(255, 255, 255, 0.15); color: white; transform: none !important; }
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, red, orange);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 800;
+        color: white;
+        flex-shrink: 0;
+        box-shadow: 0 2px 10px rgba(255, 60, 0, 0.45);
+        user-select: none;
       }
 
-      .dark .card{background:rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05)}
-      .light .card{background:white; box-shadow: 0 8px 30px rgba(0,0,0,0.12)}
+      /* ══════════════════════════════════════
+         BUTTONS  (global reset — scoped below)
+      ══════════════════════════════════════ */
+      button {
+        font-family: inherit;
+        font-size: 13px;
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: 0.22s;
+      }
+      /* only non-specialized buttons get the red hover */
+      button:not(.navBtn):not(.themeBtn):not(.addBtn):hover {
+        background: red;
+        color: white;
+        transform: translateY(-2px);
+      }
+      button:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; }
 
-      input,select{
-        width:100%;padding:14px;margin-top:10px;border-radius:12px;border:1px solid #444;
-        background:rgba(0,0,0,0.2);color:inherit;transition:.3s
+      /* Primary action button */
+      .addBtn {
+        margin-top: 20px;
+        min-width: 200px;
+        padding: 12px 24px;
+        border-radius: 12px;
+        background: linear-gradient(45deg, #ff0000, #ff7b00);
+        color: white;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: 0.25s;
+        letter-spacing: 0.3px;
+      }
+      .addBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 22px rgba(255, 60, 0, 0.45);
       }
 
-      input:focus,select:focus{
-        outline:none;border-color:red;transform:scale(1.03);
-        background:rgba(255,0,0,0.05);
+      /* ══════════════════════════════════════
+         CARDS
+      ══════════════════════════════════════ */
+      .card {
+        padding: 28px;
+        border-radius: 16px;
+        margin-bottom: 28px;
+        backdrop-filter: blur(10px);
+        transition: box-shadow 0.3s, transform 0.3s;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      }
+      .dark .card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .light .card {
+        background: white;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .card:hover { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); }
+
+      /* ══════════════════════════════════════
+         FORMS
+      ══════════════════════════════════════ */
+      .formGrid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        max-width: 1100px;
       }
 
-      .formGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
-
-      .addBtn{
-        margin-top:20px;
-        width:220px;
-        padding:12px;
-        border-radius:12px;
-        background:linear-gradient(45deg,red,orange);
-        color:white;
-        font-weight:bold;
-        border:none;
-        cursor:pointer;
-        transition:0.3s;
+      input, select {
+        width: 100%;
+        padding: 12px 14px;
+        margin-top: 8px;
+        border-radius: 10px;
+        border: 1.5px solid #3a3a3a;
+        background: rgba(0, 0, 0, 0.22);
+        color: inherit;
+        font-family: inherit;
+        font-size: 14px;
+        transition: 0.22s;
+        outline: none;
       }
-      .addBtn:hover{
-        transform:translateY(-2px);
-        box-shadow:0 6px 20px rgba(255,0,0,0.4);
+      .light input, .light select {
+        background: rgba(0, 0, 0, 0.04);
+        border-color: #ccc;
+      }
+      input:focus, select:focus {
+        border-color: red;
+        background: rgba(255, 0, 0, 0.04);
+        transform: scale(1.02);
+      }
+      input::placeholder { color: #888; }
+
+      /* ══════════════════════════════════════
+         SEARCH BAR
+      ══════════════════════════════════════ */
+      .searchBar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .searchBar input { margin-top: 0; flex: 1; min-width: 180px; }
+      .searchBar select { margin-top: 0; width: 160px; flex-shrink: 0; }
+
+      /* ══════════════════════════════════════
+         TABLES (div-grid style)
+      ══════════════════════════════════════ */
+      .tableWrapper { width: 100%; overflow-x: auto; }
+
+      .row {
+        display: grid;
+        padding: 13px 16px;
+        text-align: center;
+        border-radius: 10px;
+        margin-top: 6px;
+        align-items: center;
+        font-size: 13px;
+        transition: background 0.18s;
+      }
+      .headerRow {
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        background: linear-gradient(45deg, #7a0000, #b22222);
+        color: white;
+        border-radius: 10px;
+        margin-top: 0;
+      }
+      .row:not(.headerRow):hover { background: rgba(255, 255, 255, 0.07); }
+
+      /* ══════════════════════════════════════
+         TABLES (semantic <table> style)
+      ══════════════════════════════════════ */
+      .attendanceTable {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 320px;
+      }
+      .attendanceTable th {
+        text-align: left;
+        padding: 10px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #ff7b00;
+        border-bottom: 2px solid rgba(255, 123, 0, 0.25);
+      }
+      .attendanceTable td {
+        padding: 9px 12px;
+        border-bottom: 1px solid rgba(255, 60, 0, 0.07);
+        vertical-align: middle;
+      }
+      .attendanceTable tr:not(:first-child):hover td { background: rgba(255, 60, 0, 0.05); }
+
+      /* ══════════════════════════════════════
+         STATUS TAGS
+      ══════════════════════════════════════ */
+      .tag {
+        display: inline-block;
+        padding: 4px 11px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+      .green  { background: #00c853; color: white; }
+      .yellow { background: #ffab00; color: #1a1a1a; }
+      .red    { background: #d50000; color: white; }
+      .blue   { background: #2962ff; color: white; }
+      .orange { background: #ff6d00; color: white; }
+
+      /* ══════════════════════════════════════
+         HEADINGS (page section titles)
+      ══════════════════════════════════════ */
+      h3.pageTitle, .card h3 {
+        color: red;
+        text-align: center;
+        font-size: 17px;
+        font-weight: 700;
+        margin: 0 0 20px 0;
+        letter-spacing: 0.3px;
       }
 
-      .row{
-        display:grid;
-        padding:14px;
-        text-align:center;
-        border-radius:12px;
-        margin-top:8px;
-        align-items:center;
-        transition:0.2s;
-      }
-
-      .headerRow{
-        font-weight:bold;
-        background:linear-gradient(45deg,#8b0000,#b22222);
-        border-radius:12px;
-        color:white;
-      }
-      .row:hover{background:rgba(255,255,255,0.08)}
-
-      .searchBar{display:flex;gap:10px;margin-bottom:20px}
-
-      .tag{padding:5px 12px;border-radius:20px;font-size:11px;display:inline-block;font-weight: bold;}
-      .green{background:#00c853;color:white;}
-      .yellow{background:#ffab00;color:black;}
-      .red{background:#d50000;color:white;}
-      .blue{background:#2962ff;color:white;}
-      .orange{background:#ff6d00;color:white;}
-
-      .tableWrapper{width:100%;overflow-x:auto}
-      
-      /* ── Dashboard layout classes ── */
-      .dashboardGrid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; margin-bottom:30px; }
-
-      /* Welcome banner — red/orange RoomAdda gradient */
+      /* ══════════════════════════════════════
+         DASHBOARD SPECIFIC
+      ══════════════════════════════════════ */
       .dashboardBanner {
-        display:flex; align-items:center;
-        background: linear-gradient(135deg,#ff1a1a,#ff4d00,#ff7a00);
-        border-radius:24px; padding:35px 40px;
-        min-height:150px; margin-bottom:18px;
-        box-shadow:0 6px 28px rgba(255,60,0,0.35);
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #ff1a1a, #ff4d00, #ff7a00);
+        border-radius: 20px;
+        padding: 32px 40px;
+        min-height: 150px;
+        margin-bottom: 20px;
+        box-shadow: 0 6px 28px rgba(255, 60, 0, 0.35);
         transition: transform 0.25s, box-shadow 0.25s;
       }
       .dashboardBanner:hover {
         transform: translateY(-2px);
-        box-shadow:0 10px 32px rgba(255,60,0,0.45);
+        box-shadow: 0 10px 34px rgba(255, 60, 0, 0.45);
       }
-      .bannerText { display:flex; flex-direction:column; justify-content:center; }
+      .bannerText { display: flex; flex-direction: column; justify-content: center; }
       .dashboardBanner h1 {
-        font-size:30px; font-weight:700; color:white;
-        margin:0 0 10px 0; line-height:1.2;
+        font-size: 28px;
+        font-weight: 700;
+        color: white;
+        margin: 0 0 8px 0;
+        line-height: 1.2;
       }
       .dashboardBanner p {
-        font-size:17px; color:rgba(255,255,255,0.85);
-        margin:0; font-weight:400;
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 0;
       }
-      @media(max-width:700px){
-        .dashboardBanner { padding:24px 20px; min-height:auto; border-radius:16px; }
-        .dashboardBanner h1 { font-size:22px; }
-        .dashboardBanner p  { font-size:14px; }
-      }
+      .dashboardMainGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
 
-      /* Main 2-col grid */
-      .dashboardMainGrid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-
-      /* Profile info table */
-      .profileInfo { border-top:1px solid rgba(255,100,0,0.18); }
+      .profileInfo { border-top: 1px solid rgba(255, 100, 0, 0.15); }
       .profileRow {
-        display:flex; justify-content:space-between; align-items:center;
-        padding:7px 0; border-bottom:1px solid rgba(255,100,0,0.1);
-        font-size:13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 7px 0;
+        border-bottom: 1px solid rgba(255, 100, 0, 0.08);
+        font-size: 13px;
       }
-      .profileLabel { opacity:0.6; font-size:12px; }
-      .profileVal   { font-weight:600; font-size:13px; text-align:right; }
+      .profileLabel { opacity: 0.55; font-size: 12px; }
+      .profileVal { font-weight: 600; font-size: 13px; text-align: right; }
 
-      /* Stat row */
-      .statRow { display:flex; gap:10px; margin-top:14px; }
+      .statRow { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
       .statBox {
-        flex:1; background:rgba(255,60,0,0.07); border:1px solid rgba(255,60,0,0.2);
-        border-radius:10px; padding:10px 8px; text-align:center;
+        flex: 1;
+        min-width: 70px;
+        background: rgba(255, 60, 0, 0.07);
+        border: 1px solid rgba(255, 60, 0, 0.2);
+        border-radius: 10px;
+        padding: 10px 8px;
+        text-align: center;
       }
-      .statNum { font-size:18px; font-weight:800; line-height:1; margin-bottom:4px; color:#ff7b00; }
-      .statLbl { font-size:10px; opacity:0.6; text-transform:uppercase; letter-spacing:.5px; }
+      .statNum { font-size: 17px; font-weight: 800; line-height: 1; margin-bottom: 4px; color: #ff7b00; }
+      .statLbl { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
 
-      /* Attendance table */
-      .attendanceTable { width:100%; border-collapse:collapse; font-size:13px; min-width:320px; }
-      .attendanceTable th {
-        text-align:left; padding:8px 10px; font-size:11px; text-transform:uppercase;
-        letter-spacing:.5px; color:#ff7b00; border-bottom:2px solid rgba(255,123,0,0.3);
-      }
-      .attendanceTable td { padding:7px 10px; border-bottom:1px solid rgba(255,60,0,0.08); }
-      .attendanceTable tr:hover td { background:rgba(255,60,0,0.05); }
-
-      /* Lead stats */
-      .leadStatsGrid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+      .leadStatsGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
       .leadStatBox {
-        background:rgba(255,30,0,0.06); border:1px solid rgba(255,60,0,0.18);
-        border-radius:10px; padding:14px 12px; text-align:center;
-        transition:transform .2s;
+        background: rgba(255, 30, 0, 0.06);
+        border: 1px solid rgba(255, 60, 0, 0.18);
+        border-radius: 12px;
+        padding: 14px 12px;
+        text-align: center;
+        transition: transform 0.2s;
       }
-      .leadStatBox:hover { transform:translateY(-2px); box-shadow:0 4px 14px rgba(255,60,0,0.15); }
+      .leadStatBox:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(255, 60, 0, 0.15); }
 
-      /* Mission card */
       .missionCard {
-        border-radius:12px; padding:16px 20px; margin-top:0;
-        border-left:4px solid #ff7b00;
-        background:rgba(255,100,0,0.07);
+        border-radius: 12px;
+        padding: 18px 22px;
+        border-left: 4px solid #ff7b00;
+        background: rgba(255, 100, 0, 0.07);
       }
 
-      @media(max-width:1100px){
-        .dashboardMainGrid { grid-template-columns:1fr; }
-        .leadStatsGrid     { grid-template-columns:repeat(2,1fr); }
+      /* ══════════════════════════════════════
+         RESPONSIVE BREAKPOINTS
+      ══════════════════════════════════════ */
+
+      /* Tablet */
+      @media (max-width: 1100px) {
+        .dashboardMainGrid { grid-template-columns: 1fr; }
+        .leadStatsGrid     { grid-template-columns: repeat(2, 1fr); }
       }
 
-      @media(max-width:900px){
-        .formGrid{grid-template-columns:1fr;gap:10px;}
-        .navPillGroup{max-width:calc(100vw - 180px);}
-        .topbar{padding:12px 16px;}
-        .logo{font-size:18px;}
-        .card{padding:15px;}
-        .dashboardGrid { grid-template-columns:1fr; }
-        .statRow { flex-wrap:wrap; }
-        .statBox { min-width:80px; }
+      /* Small tablet */
+      @media (max-width: 900px) {
+        .container { padding: 24px; }
+        .formGrid  { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .card { padding: 20px; }
+        .navPillGroup { max-width: calc(100vw - 180px); }
+        .topbar { padding: 12px 16px; }
+        .logo { font-size: 18px; }
       }
 
-      @media(max-width:600px){
-        .leadStatsGrid { grid-template-columns:repeat(2,1fr); }
-        .container { padding:16px; }
+      /* Mobile */
+      @media (max-width: 600px) {
+        .container { padding: 14px; }
+        .formGrid  { grid-template-columns: 1fr; gap: 12px; }
+        .leadStatsGrid { grid-template-columns: repeat(2, 1fr); }
+        .dashboardBanner { padding: 22px 20px; min-height: auto; border-radius: 16px; }
+        .dashboardBanner h1 { font-size: 20px; }
+        .dashboardBanner p  { font-size: 14px; }
+        .addBtn { width: 100%; min-width: unset; }
       }
       `}</style>
 
@@ -556,13 +732,13 @@ export default function App() {
         {/* Pill nav group */}
         <div className="navPillGroup">
           {[
-            { label: 'Dashboard',  key: 'dashboard'  },
-            { label: 'Customers',  key: 'customers'  },
-            { label: 'Leads',      key: 'leads'      },
-            { label: 'Revenue',    key: 'revenue'    },
+            { label: 'Dashboard', key: 'dashboard' },
+            { label: 'Customers', key: 'customers' },
+            { label: 'Leads', key: 'leads' },
+            { label: 'Revenue', key: 'revenue' },
             { label: 'Properties', key: 'properties' },
-            { label: 'Finance',    key: 'finance'    },
-            { label: 'Employees',  key: 'employees'  },
+            { label: 'Finance', key: 'finance' },
+            { label: 'Employees', key: 'employees' },
             { label: 'Attendance', key: 'attendance' },
           ].map(({ label, key }) => (
             <button
@@ -1105,7 +1281,7 @@ function Revenue({ transactions, setTransactions }) {
 
       {/* Add Transaction */}
       <div className="card">
-        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>💰 Add Transaction</h3>
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}> Add Transaction</h3>
         <div className="formGrid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
           <input
             placeholder="Customer Name"
@@ -1143,7 +1319,7 @@ function Revenue({ transactions, setTransactions }) {
 
       {/* Revenue Records */}
       <div className="card">
-        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>📋 Revenue Records</h3>
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}> Revenue Records</h3>
 
         {/* Search + Filter */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
