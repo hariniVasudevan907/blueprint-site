@@ -289,6 +289,8 @@ export default function App() {
   const [employees, setEmployees] = useState([]);
   const [leads, setLeads] = useState([]);
 
+  const [transactions, setTransactions] = useState([]);
+
   // NOTE: Revenue state is kept but unused as per requirement
   // const [revenue, setRevenue] = useState([]);
 
@@ -297,6 +299,7 @@ export default function App() {
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [workDiaryUrl, setWorkDiaryUrl] = useState("");
   const [workDiaries, setWorkDiaries] = useState([]);
+  const [finance, setFinance] = useState([]);
 
   return isLoggedIn ? (
     <div className={dark ? "app dark" : "app light"}>
@@ -320,46 +323,65 @@ export default function App() {
       .container{padding:40px;width:100%}
 
       .card{
-        padding:25px;
-        border-radius:16px;
+        padding:30px;
+        border-radius:20px;
         margin-bottom:30px;
         backdrop-filter:blur(10px);
         transition: 0.3s;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
       }
 
       .dark .card{background:rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05)}
-      .light .card{background:white; box-shadow: 0 4px 20px rgba(0,0,0,0.05)}
+      .light .card{background:white; box-shadow: 0 8px 30px rgba(0,0,0,0.12)}
 
       input,select{
-        width:100%;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #444;
-        background:inherit;color:inherit;transition:.2s
+        width:100%;padding:14px;margin-top:10px;border-radius:12px;border:1px solid #444;
+        background:rgba(0,0,0,0.2);color:inherit;transition:.3s
       }
 
-      input:focus,select:focus{transform:scale(1.05);border-color:red}
+      input:focus,select:focus{
+        outline:none;border-color:red;transform:scale(1.03);
+        background:rgba(255,0,0,0.05);
+      }
 
       .formGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
 
       .addBtn{
         margin-top:20px;
         width:220px;
+        padding:12px;
+        border-radius:12px;
         background:linear-gradient(45deg,red,orange);
         color:white;
         font-weight:bold;
+        border:none;
+        cursor:pointer;
+        transition:0.3s;
+      }
+      .addBtn:hover{
+        transform:translateY(-2px);
+        box-shadow:0 6px 20px rgba(255,0,0,0.4);
       }
 
       .row{
         display:grid;
-        padding:12px;
+        padding:14px;
         text-align:center;
-        border-radius:8px;
-        margin-top:5px;
-        align-items: center;
+        border-radius:12px;
+        margin-top:8px;
+        align-items:center;
+        transition:0.2s;
       }
 
-      .headerRow{font-weight:bold;background:rgba(255,0,0,0.2)}
-      .row:hover{background:rgba(255,255,255,0.1)}
+      .headerRow{
+        font-weight:bold;
+        background:linear-gradient(45deg,#8b0000,#b22222);
+        border-radius:12px;
+        color:white;
+      }
+      .row:hover{background:rgba(255,255,255,0.08)}
 
-      .searchBar{display:flex;gap:10px;margin-bottom:15px}
+      .searchBar{display:flex;gap:10px;margin-bottom:20px}
 
       .tag{padding:5px 12px;border-radius:20px;font-size:11px;display:inline-block;font-weight: bold;}
       .green{background:#00c853;color:white;}
@@ -476,10 +498,11 @@ export default function App() {
           <button onClick={() => setView("dashboard")} style={{ background: view === 'dashboard' ? 'red' : '', color: view === 'dashboard' ? 'white' : '' }}>Dashboard</button>
           <button onClick={() => setView("customers")} style={{ background: view === 'customers' ? 'red' : '', color: view === 'customers' ? 'white' : '' }}>Customers</button>
           <button onClick={() => setView("leads")} style={{ background: view === 'leads' ? 'red' : '', color: view === 'leads' ? 'white' : '' }}>Leads</button>
+          <button onClick={() => setView("revenue")} style={{ background: view === 'revenue' ? 'red' : '', color: view === 'revenue' ? 'white' : '' }}>Revenue</button>
           <button onClick={() => setView("properties")} style={{ background: view === 'properties' ? 'red' : '', color: view === 'properties' ? 'white' : '' }}>Properties</button>
+          <button onClick={() => setView("finance")} style={{ background: view === 'finance' ? 'red' : '', color: view === 'finance' ? 'white' : '' }}>Finance</button>
           <button onClick={() => setView("employees")} style={{ background: view === 'employees' ? 'red' : '', color: view === 'employees' ? 'white' : '' }}>Employees</button>
           <button onClick={() => setView("attendance")} style={{ background: view === 'attendance' ? 'red' : '', color: view === 'attendance' ? 'white' : '' }}>Attendance</button>
-          <button onClick={() => setView("diary")} style={{ background: view === 'diary' ? 'red' : '', color: view === 'diary' ? 'white' : '' }}>Work Diary</button>
           <button onClick={() => setDark(!dark)}>{dark ? "☀️ Light" : "🌙 Dark"}</button>
         </div>
       </div>
@@ -490,19 +513,16 @@ export default function App() {
         workDiaryUrl={workDiaryUrl} setWorkDiaryUrl={setWorkDiaryUrl}
         workDiaries={workDiaries} setWorkDiaries={setWorkDiaries}
       />}
-      {view === "customers" && <Customers customers={customers} />}
-      {view === "leads" && <Leads leads={leads} />}
+      {view === "customers" && <Customers customers={customers} setCustomers={setCustomers} />}
+      {view === "leads" && <Leads leads={leads} setLeads={setLeads} />}
       {view === "properties" && <Properties properties={properties} setProperties={setProperties} customers={customers} />}
       {view === "employees" && <Employees employees={employees} setEmployees={setEmployees} />}
       {view === "attendance" && <Attendance
         attendanceStatus={attendanceStatus} setAttendanceStatus={setAttendanceStatus}
         attendanceHistory={attendanceHistory} setAttendanceHistory={setAttendanceHistory}
       />}
-      {view === "diary" && <WorkDiary
-        workDiaryUrl={workDiaryUrl} setWorkDiaryUrl={setWorkDiaryUrl}
-        workDiaries={workDiaries} setWorkDiaries={setWorkDiaries}
-      />}
-      {/* Revenue hidden for future admin-only use */}
+      {view === "revenue" && <Revenue transactions={transactions} setTransactions={setTransactions} />}
+      {view === "finance" && <Finance finance={finance} setFinance={setFinance} properties={properties} />}
     </div>
   ) : (
     <>
@@ -514,88 +534,227 @@ export default function App() {
 }
 
 // ================= CUSTOMERS =================
-function Customers({ customers }) {
-  const [search, setSearch] = useState("");
+function Customers({ customers, setCustomers }) {
+  const [search, setSearch] = useState('');
 
-  const filtered = customers.filter(c => c.phone?.includes(search) || c.name?.toLowerCase().includes(search.toLowerCase())).slice(0, 50);
+  const GOOGLE_FORM_URL = 'https://forms.gle/your-form-link-here'; // Replace with real URL
+
+  const displayed = customers
+    .slice(-50)
+    .reverse()
+    .filter(c =>
+      c.name?.toLowerCase().includes(search.toLowerCase()) ||
+      c.phone?.includes(search)
+    );
+
+  const visitBadge = (visit) => {
+    if (visit === 'Visited') return 'green';
+    if (visit === 'Not Interested') return 'red';
+    return 'yellow'; // Pending default
+  };
 
   return (
     <div className="container">
       <div className="card">
-        <h3 style={{ color: 'red', marginTop: 0 }}>Recent Customers (Max 50)</h3>
-        <div className="searchBar">
-          <input placeholder="Search by name or phone" value={search} onChange={e => setSearch(e.target.value)} style={{ marginTop: 0 }} />
-          <select style={{ marginTop: 0, width: '200px' }}>
-            <option>All Filters</option>
-            <option>Visited</option>
-            <option>Pending</option>
-          </select>
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>Customer List</h3>
+
+        {/* Search + Google Form button row */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+          <input
+            placeholder="Search by name or phone"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ flex: 1, marginTop: 0, minWidth: '200px' }}
+          />
+          <button
+            onClick={() => window.open(GOOGLE_FORM_URL, '_blank')}
+            style={{
+              background: 'linear-gradient(45deg,red,orange)',
+              color: 'white', fontWeight: 'bold',
+              padding: '10px 18px', borderRadius: '10px',
+              border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            📋 Open Google Form
+          </button>
         </div>
 
+        {/* Table */}
         <div className="tableWrapper">
-          <div className="row headerRow attendanceTable" style={{ gridTemplateColumns: 'repeat(7, 1fr)', minWidth: '900px' }}>
-            <div>Customer Name</div><div>Phone Number</div><div>Assigned Employee</div><div>Interested Property</div><div>Visit Status</div><div>Lead Source</div><div>Date Added</div>
-          </div>
-
-          {filtered.length === 0 ? <p style={{ textAlign: 'center', opacity: 0.5 }}>No customers match</p> : filtered.map(c => (
-            <div className="row" key={c.id} style={{ gridTemplateColumns: 'repeat(7, 1fr)', minWidth: '900px' }}>
-              <div>{c.name || "N/A"}</div>
-              <div>{c.phone || "N/A"}</div>
-              <div>{c.employeeId || "Unassigned"}</div>
-              <div>{c.propertyId || "General"}</div>
-              <div><span className={`tag ${c.visit === "Visited" ? "green" : c.visit === "Pending" ? "yellow" : "red"}`}>{c.visit || "Pending"}</span></div>
-              <div>{c.source || "Unknown"}</div>
-              <div>{c.dateAdded || new Date().toLocaleDateString()}</div>
-            </div>
-          ))}
+          <table className="attendanceTable" style={{ minWidth: '750px' }}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Property</th>
+                <th>Employee</th>
+                <th>Visit Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayed.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', opacity: 0.5, padding: '20px' }}>No customers found</td>
+                </tr>
+              ) : (
+                displayed.map(c => (
+                  <tr key={c.id}>
+                    <td style={{ opacity: 0.5, fontSize: '11px' }}>#{String(c.id).slice(-5)}</td>
+                    <td style={{ fontWeight: '600' }}>{c.name || 'N/A'}</td>
+                    <td>{c.phone || 'N/A'}</td>
+                    <td>{c.propertyId || '—'}</td>
+                    <td>{c.employeeId || 'Unassigned'}</td>
+                    <td>
+                      <span className={`tag ${visitBadge(c.visit)}`}>
+                        {c.visit || 'Pending'}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ================= LEADS =================
-function Leads({ leads }) {
-  const [search, setSearch] = useState("");
+function Leads({ leads, setLeads }) {
+  const [form, setForm] = useState({ name: '', phone: '', source: 'Instagram', status: 'New' });
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('All');
 
-  const filtered = leads.filter(l => l.phone?.includes(search) || l.name?.toLowerCase().includes(search.toLowerCase()));
+  const handleAdd = () => {
+    if (!form.name || !form.phone) { alert('Name and phone are required.'); return; }
+    setLeads([{ id: generateId(), ...form }, ...leads]);
+    setForm({ name: '', phone: '', source: 'Instagram', status: 'New' });
+  };
+
+  const statusBadge = (status) => {
+    if (status === 'Contacted') return 'blue';
+    if (status === 'Converted') return 'green';
+    return 'yellow'; // New default
+  };
+
+  const filtered = leads
+    .filter(l => {
+      const matchSearch =
+        l.name?.toLowerCase().includes(search.toLowerCase()) ||
+        l.phone?.includes(search);
+      const matchFilter = filter === 'All' || l.status === filter;
+      return matchSearch && matchFilter;
+    });
 
   return (
     <div className="container">
+
+      {/* Add Lead Form */}
       <div className="card">
-        <h3 style={{ color: 'red', marginTop: 0 }}>Leads List</h3>
-        <div className="searchBar">
-          <input placeholder="Search by Name or Phone" value={search} onChange={e => setSearch(e.target.value)} style={{ marginTop: 0 }} />
-          <select style={{ marginTop: 0, width: '200px' }}>
-            <option>All Types</option>
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>Add Lead</h3>
+        <div className="formGrid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+          <input
+            placeholder="Name"
+            value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })}
+            style={{ marginTop: 0 }}
+          />
+          <input
+            placeholder="Phone"
+            value={form.phone}
+            onChange={e => setForm({ ...form, phone: e.target.value })}
+            style={{ marginTop: 0 }}
+          />
+          <select
+            value={form.source}
+            onChange={e => setForm({ ...form, source: e.target.value })}
+            style={{ marginTop: 0 }}
+          >
+            <option>Instagram</option>
+            <option>Facebook</option>
+            <option>Referral</option>
+          </select>
+          <select
+            value={form.status}
+            onChange={e => setForm({ ...form, status: e.target.value })}
+            style={{ marginTop: 0 }}
+          >
             <option>New</option>
             <option>Contacted</option>
+            <option>Converted</option>
+          </select>
+        </div>
+        <button className="addBtn" onClick={handleAdd} style={{ marginTop: '16px' }}>
+          + Add Lead
+        </button>
+      </div>
+
+      {/* Leads List */}
+      <div className="card">
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>Leads List</h3>
+
+        {/* Search + Filter row */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          <input
+            placeholder="Search by name or phone"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ flex: 1, marginTop: 0, minWidth: '180px' }}
+          />
+          <select
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            style={{ marginTop: 0, width: '160px', flexShrink: 0 }}
+          >
+            <option>All</option>
+            <option>New</option>
+            <option>Contacted</option>
+            <option>Converted</option>
           </select>
         </div>
 
+        {/* Table */}
         <div className="tableWrapper">
-          <div className="row headerRow" style={{ gridTemplateColumns: 'repeat(6, 1fr)', minWidth: '800px' }}>
-            <div>Lead Name</div><div>Phone Number</div><div>Source</div><div>Status</div><div>Assigned Employee</div><div>Follow-up Date</div>
-          </div>
-
-          {filtered.length === 0 ? <p style={{ textAlign: 'center', opacity: 0.5 }}>No leads found</p> : filtered.map(l => (
-            <div className="row" key={l.id} style={{ gridTemplateColumns: 'repeat(6, 1fr)', minWidth: '800px' }}>
-              <div>{l.name || "N/A"}</div>
-              <div>{l.phone || "N/A"}</div>
-              <div>{l.source || "N/A"}</div>
-              <div>
-                <span className={`tag ${l.status === "New" ? "yellow" : l.status === "Contacted" ? "blue" : l.status === "Converted" ? "green" : "red"}`}>
-                  {l.status || "New"}
-                </span>
-              </div>
-              <div>{l.employeeId || "Unassigned"}</div>
-              <div>{l.followUp || new Date().toLocaleDateString()}</div>
-            </div>
-          ))}
+          <table className="attendanceTable" style={{ minWidth: '600px' }}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Source</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center', opacity: 0.5, padding: '20px' }}>No leads found</td>
+                </tr>
+              ) : (
+                filtered.map(l => (
+                  <tr key={l.id}>
+                    <td style={{ opacity: 0.5, fontSize: '11px' }}>#{String(l.id).slice(-5)}</td>
+                    <td style={{ fontWeight: '600' }}>{l.name}</td>
+                    <td>{l.phone}</td>
+                    <td>{l.source}</td>
+                    <td>
+                      <span className={`tag ${statusBadge(l.status)}`}>
+                        {l.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
+
     </div>
-  )
+  );
 }
 
 // ================= PROPERTIES =================
@@ -837,6 +996,283 @@ function WorkDiary({ workDiaryUrl, setWorkDiaryUrl, workDiaries, setWorkDiaries 
           }
         </div>
       </div>
+    </div>
+  );
+}
+
+// ================= REVENUE =================
+function Revenue({ transactions, setTransactions }) {
+  const [form, setForm] = useState({
+    name: '', amount: '', mode: 'Cash', status: 'Paid',
+    date: new Date().toISOString().slice(0, 10),
+  });
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('All');
+
+  const handleAdd = () => {
+    if (!form.name || !form.amount) { alert('Customer name and amount are required.'); return; }
+    setTransactions([{ id: generateId(), ...form }, ...transactions]);
+    setForm({ name: '', amount: '', mode: 'Cash', status: 'Paid', date: new Date().toISOString().slice(0, 10) });
+  };
+
+  const filtered = transactions.filter(t => {
+    const matchSearch =
+      t.name.toLowerCase().includes(search.toLowerCase()) ||
+      t.date.includes(search);
+    const matchFilter = filter === 'All' || t.status === filter;
+    return matchSearch && matchFilter;
+  });
+
+  return (
+    <div className="container">
+
+      {/* Add Transaction */}
+      <div className="card">
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>💰 Add Transaction</h3>
+        <div className="formGrid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+          <input
+            placeholder="Customer Name"
+            value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })}
+            style={{ marginTop: 0 }}
+          />
+          <input
+            placeholder="Amount (₹)"
+            type="number"
+            value={form.amount}
+            onChange={e => setForm({ ...form, amount: e.target.value })}
+            style={{ marginTop: 0 }}
+          />
+          <select value={form.mode} onChange={e => setForm({ ...form, mode: e.target.value })} style={{ marginTop: 0 }}>
+            <option>Cash</option>
+            <option>UPI</option>
+            <option>Bank Transfer</option>
+          </select>
+          <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={{ marginTop: 0 }}>
+            <option>Paid</option>
+            <option>Pending</option>
+          </select>
+          <input
+            type="date"
+            value={form.date}
+            onChange={e => setForm({ ...form, date: e.target.value })}
+            style={{ marginTop: 0 }}
+          />
+        </div>
+        <button className="addBtn" onClick={handleAdd} style={{ marginTop: '16px' }}>
+          + Add Transaction
+        </button>
+      </div>
+
+      {/* Revenue Records */}
+      <div className="card">
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>📋 Revenue Records</h3>
+
+        {/* Search + Filter */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          <input
+            placeholder="Search by name or date..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ flex: 1, marginTop: 0, minWidth: '180px' }}
+          />
+          <select
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            style={{ marginTop: 0, width: '150px', flexShrink: 0 }}
+          >
+            <option>All</option>
+            <option>Paid</option>
+            <option>Pending</option>
+          </select>
+        </div>
+
+        {/* Table */}
+        <div className="tableWrapper">
+          <table className="attendanceTable" style={{ minWidth: '700px' }}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Amount (₹)</th>
+                <th>Mode</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', opacity: 0.5, padding: '20px' }}>
+                    No transactions found
+                  </td>
+                </tr>
+              ) : (
+                filtered.map(t => (
+                  <tr key={t.id}>
+                    <td style={{ opacity: 0.5, fontSize: '11px' }}>#{String(t.id).slice(-5)}</td>
+                    <td style={{ fontWeight: '600' }}>{t.name}</td>
+                    <td style={{ color: '#ff7b00', fontWeight: '700' }}>₹{Number(t.amount).toLocaleString('en-IN')}</td>
+                    <td>{t.mode}</td>
+                    <td>
+                      <span className={`tag ${t.status === 'Paid' ? 'green' : 'yellow'}`}>
+                        {t.status}
+                      </span>
+                    </td>
+                    <td>{t.date}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+// ================= FINANCE =================
+function Finance({ finance, setFinance, properties }) {
+  const emptyForm = {
+    id: '', customer: '', propertyId: '', amount: '',
+    type: 'Cash', status: 'Paid',
+    date: new Date().toISOString().slice(0, 10),
+  };
+  const [form, setForm] = useState(emptyForm);
+  const [search, setSearch] = useState('');
+
+  const handleAdd = () => {
+    if (!form.id) { alert('Transaction ID is required.'); return; }
+    if (!form.customer) { alert('Customer Name is required.'); return; }
+    if (!form.amount || Number(form.amount) <= 0) { alert('Amount must be greater than 0.'); return; }
+    if (finance.find(f => f.id === form.id)) { alert('Duplicate Transaction ID!'); return; }
+    setFinance([...finance, { ...form, amount: Number(form.amount) }]);
+    setForm(emptyForm);
+  };
+
+  const filtered = finance.filter(f =>
+    f.id.includes(search) ||
+    f.customer.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Summary calculations
+  const total = finance.reduce((s, f) => s + f.amount, 0);
+  const paid = finance.filter(f => f.status === 'Paid').reduce((s, f) => s + f.amount, 0);
+  const pending = finance.filter(f => f.status === 'Pending').reduce((s, f) => s + f.amount, 0);
+  const fmt = n => `₹${n.toLocaleString('en-IN')}`;
+
+  return (
+    <div className="container">
+
+      {/* ── Summary Cards ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginBottom: '24px' }}>
+        {[
+          { label: 'Total Revenue', value: fmt(total), color: '#ff7b00' },
+          { label: 'Paid Amount', value: fmt(paid), color: '#00c853' },
+          { label: 'Pending Amount', value: fmt(pending), color: '#ffab00' },
+        ].map(s => (
+          <div key={s.label} className="card" style={{ marginBottom: 0, textAlign: 'center', padding: '20px 16px' }}>
+            <div style={{ fontSize: '22px', fontWeight: '800', color: s.color, lineHeight: 1, marginBottom: '6px' }}>{s.value}</div>
+            <div style={{ fontSize: '12px', opacity: 0.65, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Add Transaction ── */}
+      <div className="card">
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}> Add Transaction</h3>
+        <div className="formGrid">
+          <input
+            placeholder="Transaction ID"
+            value={form.id}
+            onChange={e => setForm({ ...form, id: e.target.value })}
+          />
+          <input
+            placeholder="Customer Name"
+            value={form.customer}
+            onChange={e => setForm({ ...form, customer: e.target.value })}
+          />
+          {properties.length > 0 ? (
+            <select value={form.propertyId} onChange={e => setForm({ ...form, propertyId: e.target.value })}>
+              <option value="">-- Select Property --</option>
+              {properties.map(p => (
+                <option key={p.id} value={p.id}>{p.id} – {p.location}</option>
+              ))}
+            </select>
+          ) : (
+            <input
+              placeholder="Property ID"
+              value={form.propertyId}
+              onChange={e => setForm({ ...form, propertyId: e.target.value })}
+            />
+          )}
+          <input
+            placeholder="Amount (₹)"
+            type="number"
+            min="1"
+            value={form.amount}
+            onChange={e => setForm({ ...form, amount: e.target.value })}
+          />
+          <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
+            <option>Cash</option>
+            <option>UPI</option>
+            <option>Bank Transfer</option>
+          </select>
+          <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+            <option>Paid</option>
+            <option>Pending</option>
+          </select>
+          <input
+            type="date"
+            value={form.date}
+            onChange={e => setForm({ ...form, date: e.target.value })}
+          />
+        </div>
+        <button className="addBtn" onClick={handleAdd}>+ Add Transaction</button>
+      </div>
+
+      {/* ── Finance List ── */}
+      <div className="card">
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}> Finance Records</h3>
+
+        <div className="searchBar">
+          <input
+            placeholder="Search by Transaction ID or Customer Name"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ marginTop: 0 }}
+          />
+        </div>
+
+        <div className="tableWrapper">
+          <div className="row headerRow" style={{ gridTemplateColumns: 'repeat(7,1fr)', minWidth: '900px' }}>
+            <div>ID</div><div>Customer</div><div>Property</div>
+            <div>Amount</div><div>Type</div><div>Status</div><div>Date</div>
+          </div>
+
+          {filtered.length === 0 ? (
+            <p style={{ textAlign: 'center', opacity: 0.5, padding: '20px 0' }}>No finance records found</p>
+          ) : (
+            filtered.map(f => (
+              <div className="row" key={f.id} style={{ gridTemplateColumns: 'repeat(7,1fr)', minWidth: '900px' }}>
+                <div style={{ fontSize: '12px', opacity: 0.7 }}>{f.id}</div>
+                <div style={{ fontWeight: '600' }}>{f.customer}</div>
+                <div>{f.propertyId || '—'}</div>
+                <div style={{ color: '#ff7b00', fontWeight: '700' }}>{fmt(f.amount)}</div>
+                <div>{f.type}</div>
+                <div>
+                  <span className={`tag ${f.status === 'Paid' ? 'green' : 'yellow'}`}>
+                    {f.status}
+                  </span>
+                </div>
+                <div>{f.date}</div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }
