@@ -312,9 +312,66 @@ export default function App() {
       .dark{background:linear-gradient(135deg,#0f0f0f,#1a1a1a);color:white}
       .light{background:#f5f5f5;color:black}
 
-      .topbar{display:flex;justify-content:space-between;padding:20px 40px;border-bottom:2px solid red; align-items: center;}
-      .logo{font-size:30px;font-weight:bold;color:red}
-      .nav{display:flex;gap:12px; flex-wrap: wrap;}
+      /* ── Topbar ── */
+      .topbar{
+        display:flex; justify-content:space-between; align-items:center;
+        padding:14px 30px;
+        background:rgba(0,0,0,0.7);
+        backdrop-filter:blur(12px);
+        border-bottom:1px solid rgba(255,255,255,0.08);
+        position:sticky; top:0; z-index:100;
+      }
+      .logo{
+        font-size:22px; font-weight:800; color:red;
+        letter-spacing:1.5px; text-shadow:0 0 10px rgba(255,0,0,0.45);
+        flex-shrink:0;
+      }
+
+      /* Nav pill group */
+      .navPillGroup{
+        display:flex; gap:6px; align-items:center;
+        background:rgba(255,255,255,0.04);
+        padding:6px 8px; border-radius:999px;
+        overflow-x:auto; scrollbar-width:none;
+      }
+      .navPillGroup::-webkit-scrollbar{display:none}
+
+      /* Individual pill button */
+      .navBtn{
+        padding:7px 15px; border-radius:999px;
+        background:transparent; color:#bbb;
+        border:1px solid transparent;
+        font-size:13px; font-weight:500;
+        cursor:pointer; transition:all 0.25s ease;
+        white-space:nowrap; flex-shrink:0;
+      }
+      .navBtn:hover{
+        background:rgba(255,255,255,0.09); color:white;
+        transform:scale(1.04); border-color:transparent;
+      }
+      .navBtn.active{
+        background:linear-gradient(45deg,red,orange);
+        color:white; border:none;
+        box-shadow:0 3px 12px rgba(255,60,0,0.4);
+      }
+      .navBtn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+
+      /* Right-side actions */
+      .navActions{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+      .themeBtn{
+        padding:7px 14px; border-radius:999px;
+        background:rgba(255,255,255,0.07);
+        color:inherit; border:1px solid rgba(255,255,255,0.12);
+        font-size:13px; cursor:pointer; transition:0.25s;
+      }
+      .themeBtn:hover{ background:rgba(255,255,255,0.14); color:white; transform:none; }
+      .avatar{
+        width:36px; height:36px; border-radius:50%; flex-shrink:0;
+        background:linear-gradient(45deg,red,orange);
+        display:flex; align-items:center; justify-content:center;
+        font-size:14px; font-weight:800; color:white;
+        box-shadow:0 2px 10px rgba(255,60,0,0.4);
+      }
 
       button{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;transition:.3s}
       button:hover{background:red;color:white;transform:translateY(-2px)}
@@ -477,13 +534,13 @@ export default function App() {
 
       @media(max-width:900px){
         .formGrid{grid-template-columns:1fr;gap:10px;}
-        .nav{flex-wrap:wrap;justify-content:center;margin-top:10px;}
-        .topbar{flex-direction:column;align-items:center;padding:15px;}
+        .navPillGroup{max-width:calc(100vw - 180px);}
+        .topbar{padding:12px 16px;}
+        .logo{font-size:18px;}
         .card{padding:15px;}
         .dashboardGrid { grid-template-columns:1fr; }
         .statRow { flex-wrap:wrap; }
         .statBox { min-width:80px; }
-        .welcomeBanner { flex-direction:column; align-items:flex-start; gap:8px; }
       }
 
       @media(max-width:600px){
@@ -493,17 +550,37 @@ export default function App() {
       `}</style>
 
       <div className="topbar">
+        {/* Logo */}
         <div className="logo">RoomAdda</div>
-        <div className="nav">
-          <button onClick={() => setView("dashboard")} style={{ background: view === 'dashboard' ? 'red' : '', color: view === 'dashboard' ? 'white' : '' }}>Dashboard</button>
-          <button onClick={() => setView("customers")} style={{ background: view === 'customers' ? 'red' : '', color: view === 'customers' ? 'white' : '' }}>Customers</button>
-          <button onClick={() => setView("leads")} style={{ background: view === 'leads' ? 'red' : '', color: view === 'leads' ? 'white' : '' }}>Leads</button>
-          <button onClick={() => setView("revenue")} style={{ background: view === 'revenue' ? 'red' : '', color: view === 'revenue' ? 'white' : '' }}>Revenue</button>
-          <button onClick={() => setView("properties")} style={{ background: view === 'properties' ? 'red' : '', color: view === 'properties' ? 'white' : '' }}>Properties</button>
-          <button onClick={() => setView("finance")} style={{ background: view === 'finance' ? 'red' : '', color: view === 'finance' ? 'white' : '' }}>Finance</button>
-          <button onClick={() => setView("employees")} style={{ background: view === 'employees' ? 'red' : '', color: view === 'employees' ? 'white' : '' }}>Employees</button>
-          <button onClick={() => setView("attendance")} style={{ background: view === 'attendance' ? 'red' : '', color: view === 'attendance' ? 'white' : '' }}>Attendance</button>
-          <button onClick={() => setDark(!dark)}>{dark ? "☀️ Light" : "🌙 Dark"}</button>
+
+        {/* Pill nav group */}
+        <div className="navPillGroup">
+          {[
+            { label: 'Dashboard',  key: 'dashboard'  },
+            { label: 'Customers',  key: 'customers'  },
+            { label: 'Leads',      key: 'leads'      },
+            { label: 'Revenue',    key: 'revenue'    },
+            { label: 'Properties', key: 'properties' },
+            { label: 'Finance',    key: 'finance'    },
+            { label: 'Employees',  key: 'employees'  },
+            { label: 'Attendance', key: 'attendance' },
+          ].map(({ label, key }) => (
+            <button
+              key={key}
+              className={`navBtn${view === key ? ' active' : ''}`}
+              onClick={() => setView(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Right actions */}
+        <div className="navActions">
+          <button className="themeBtn" onClick={() => setDark(!dark)}>
+            {dark ? '☀️ Light' : '🌙 Dark'}
+          </button>
+          <div className="avatar">DP</div>
         </div>
       </div>
 
