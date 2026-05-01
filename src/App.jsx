@@ -521,6 +521,8 @@ export default function App() {
         transform: scale(1.02);
       }
       input::placeholder { color: #888; }
+      select option { background: #1a1a1a; color: white; }
+      .light select option { background: white; color: black; }
 
       /* ══════════════════════════════════════
          SEARCH BAR
@@ -788,81 +790,171 @@ export default function App() {
 
 // ================= CUSTOMERS =================
 function Customers({ customers, setCustomers }) {
-  const [search, setSearch] = useState('');
-
-  const GOOGLE_FORM_URL = 'https://forms.gle/your-form-link-here'; // Replace with real URL
-
-  const displayed = customers
-    .slice(-50)
-    .reverse()
-    .filter(c =>
-      c.name?.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone?.includes(search)
-    );
-
-  const visitBadge = (visit) => {
-    if (visit === 'Visited') return 'green';
-    if (visit === 'Not Interested') return 'red';
-    return 'yellow'; // Pending default
+  const emptyForm = {
+    name: '', phone: '', email: '', city: '', gender: 'Boys',
+    budget: '', roomType: 'Single', food: 'Veg', moveInDate: '', stayDuration: '',
+    source: 'Instagram', employeeId: '', followUp: '', notes: '',
+    status: 'New'
   };
+  const [form, setForm] = useState(emptyForm);
+  const [editingItem, setEditingItem] = useState(null);
+  const [search, setSearch] = useState('');
+  const GOOGLE_FORM_URL = 'https://forms.gle/your-form-link-here';
+
+  const validate = () => {
+    if (!form.name || !form.phone) { alert('Name and Phone are required.'); return false; }
+    if (!/^\d{10}$/.test(form.phone)) { alert('Phone must be exactly 10 digits.'); return false; }
+    if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) { alert('Please enter a valid email address.'); return false; }
+    if (form.budget && (isNaN(Number(form.budget)) || Number(form.budget) <= 0)) { alert('Budget must be a number > 0.'); return false; }
+    return true;
+  };
+
+  const handleAdd = () => {
+    if (!validate()) return;
+    setCustomers(prev => [{ id: generateId(), ...form }, ...prev]);
+    setForm(emptyForm);
+  };
+  const handleUpdate = () => {
+    if (!validate()) return;
+    setCustomers(prev => prev.map(c => String(c.id) === String(editingItem.id) ? { ...editingItem, ...form } : c));
+    setEditingItem(null); setForm(emptyForm);
+  };
+  const handleEdit = (item) => {
+    setEditingItem(item);
+    setForm({
+      name: item.name||'', phone: item.phone||'', email: item.email||'', city: item.city||'', gender: item.gender||'Boys',
+      budget: item.budget||'', roomType: item.roomType||'Single', food: item.food||'Veg',
+      moveInDate: item.moveInDate||'', stayDuration: item.stayDuration||'',
+      source: item.source||'Instagram', employeeId: item.employeeId||'',
+      followUp: item.followUp||'', notes: item.notes||'', status: item.status||'New'
+    });
+  };
+  const handleDelete = (id) => {
+    if (window.confirm('Are you sure you want to delete?'))
+      setCustomers(prev => prev.filter(item => String(item.id) !== String(id)));
+  };
+
+  const viewDetails = (c) => {
+    alert(
+      `── Customer Details ──\n\n` +
+      `Name: ${c.name || 'N/A'}\nPhone: ${c.phone || 'N/A'}\nEmail: ${c.email || 'N/A'}\n` +
+      `City: ${c.city || 'N/A'}\nGender: ${c.gender || 'N/A'}\n\n` +
+      `── Requirement ──\nBudget: ₹${c.budget || 'N/A'}\nRoom Type: ${c.roomType || 'N/A'}\n` +
+      `Food: ${c.food || 'N/A'}\nMove-in: ${c.moveInDate || 'N/A'}\nStay: ${c.stayDuration ? c.stayDuration + ' months' : 'N/A'}\n\n` +
+      `── CRM ──\nSource: ${c.source || 'N/A'}\nEmployee: ${c.employeeId || 'Unassigned'}\n` +
+      `Follow-up: ${c.followUp || 'N/A'}\nStatus: ${c.status || 'New'}\nNotes: ${c.notes || '—'}`
+    );
+  };
+
+  const displayed = customers.slice(-50).reverse().filter(c =>
+    c.name?.toLowerCase().includes(search.toLowerCase()) ||
+    c.phone?.includes(search) ||
+    c.city?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const statusBadge = (s) => {
+    if (s === 'Converted') return 'green';
+    if (s === 'Not Interested') return 'red';
+    if (s === 'Contacted' || s === 'Visit Scheduled') return 'blue';
+    if (s === 'Visited') return 'orange';
+    return 'yellow';
+  };
+
+  const inputStyle = { marginTop: 0 };
+  const editBtnStyle = { padding:'4px 8px', fontSize:'12px', background:'transparent', border:'1px solid #ff7b00', color:'#ff7b00', borderRadius:'6px', cursor:'pointer', marginRight:'4px' };
+  const deleteBtnStyle = { padding:'4px 8px', fontSize:'12px', background:'transparent', border:'1px solid #d50000', color:'#d50000', borderRadius:'6px', cursor:'pointer', marginRight:'4px' };
+  const viewBtnStyle = { padding:'4px 8px', fontSize:'12px', background:'transparent', border:'1px solid #2962ff', color:'#2962ff', borderRadius:'6px', cursor:'pointer' };
+  const sectionLabel = { fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.5, marginBottom: '8px', marginTop: '16px' };
 
   return (
     <div className="container">
+      {/* ── Add / Edit Form ── */}
       <div className="card">
-        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>Customer List</h3>
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>{editingItem ? '✏️ Edit Customer' : '+ Add Customer'}</h3>
 
-        {/* Search + Google Form button row */}
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
-          <input
-            placeholder="Search by name or phone"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ flex: 1, marginTop: 0, minWidth: '200px' }}
-          />
-          <button
-            onClick={() => window.open(GOOGLE_FORM_URL, '_blank')}
-            style={{
-              background: 'linear-gradient(45deg,red,orange)',
-              color: 'white', fontWeight: 'bold',
-              padding: '10px 18px', borderRadius: '10px',
-              border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
-          >
-            📋 Open Google Form
-          </button>
+        <div style={sectionLabel}>Basic Info</div>
+        <div className="formGrid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+          <input placeholder="Name *" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle} />
+          <input placeholder="Phone *" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
+          <input placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={inputStyle} />
+          <input placeholder="City / Location" value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} style={inputStyle} />
+          <select value={form.gender} onChange={e => setForm({ ...form, gender: e.target.value })} style={inputStyle}>
+            <option>Boys</option><option>Girls</option>
+          </select>
         </div>
 
-        {/* Table */}
+        <div style={sectionLabel}>Requirement Info</div>
+        <div className="formGrid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+          <input placeholder="Budget (₹)" type="number" value={form.budget} onChange={e => setForm({ ...form, budget: e.target.value })} style={inputStyle} />
+          <select value={form.roomType} onChange={e => setForm({ ...form, roomType: e.target.value })} style={inputStyle}>
+            <option>Single</option><option>Double</option><option>Triple</option>
+          </select>
+          <select value={form.food} onChange={e => setForm({ ...form, food: e.target.value })} style={inputStyle}>
+            <option>Veg</option><option>Non-Veg</option>
+          </select>
+          <input type="date" value={form.moveInDate} onChange={e => setForm({ ...form, moveInDate: e.target.value })} style={inputStyle} title="Move-in Date" />
+          <input placeholder="Stay Duration (months)" type="number" value={form.stayDuration} onChange={e => setForm({ ...form, stayDuration: e.target.value })} style={inputStyle} />
+        </div>
+
+        <div style={sectionLabel}>CRM Info</div>
+        <div className="formGrid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+          <select value={form.source} onChange={e => setForm({ ...form, source: e.target.value })} style={inputStyle}>
+            <option>Instagram</option><option>Facebook</option><option>Referral</option>
+          </select>
+          <input placeholder="Assigned Employee" value={form.employeeId} onChange={e => setForm({ ...form, employeeId: e.target.value })} style={inputStyle} />
+          <input type="date" value={form.followUp} onChange={e => setForm({ ...form, followUp: e.target.value })} style={inputStyle} title="Follow-up Date" />
+          <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={inputStyle}>
+            <option>New</option><option>Contacted</option><option>Visit Scheduled</option><option>Visited</option><option>Converted</option><option>Not Interested</option>
+          </select>
+        </div>
+        <div style={{ marginTop: '12px' }}>
+          <textarea placeholder="Notes..." value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2}
+            style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1.5px solid #3a3a3a', background: 'rgba(0,0,0,0.22)', color: 'inherit', fontFamily: 'inherit', fontSize: '14px', resize: 'vertical', outline: 'none' }} />
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {editingItem ? (
+            <>
+              <button className="addBtn" onClick={handleUpdate}>✔ Update Customer</button>
+              <button className="addBtn" onClick={() => { setEditingItem(null); setForm(emptyForm); }} style={{ background: '#555' }}>Cancel</button>
+            </>
+          ) : (
+            <button className="addBtn" onClick={handleAdd}>+ Add Customer</button>
+          )}
+          <button onClick={() => window.open(GOOGLE_FORM_URL, '_blank')} style={{ marginTop: '20px', background: 'linear-gradient(45deg,red,orange)', color: 'white', fontWeight: 'bold', padding: '10px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>📋 Open Google Form</button>
+        </div>
+      </div>
+
+      {/* ── Customer List ── */}
+      <div className="card">
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>Customer List</h3>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+          <input placeholder="Search by name, phone or city" value={search} onChange={e => setSearch(e.target.value)} style={{ flex: 1, marginTop: 0, minWidth: '200px' }} />
+        </div>
         <div className="tableWrapper">
-          <table className="attendanceTable" style={{ minWidth: '750px' }}>
+          <table className="attendanceTable" style={{ minWidth: '850px' }}>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Property</th>
-                <th>Employee</th>
-                <th>Visit Status</th>
+                <th>ID</th><th>Name</th><th>Phone</th><th>City</th><th>Budget</th><th>Employee</th><th>Status</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {displayed.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', opacity: 0.5, padding: '20px' }}>No customers found</td>
-                </tr>
+                <tr><td colSpan={8} style={{ textAlign: 'center', opacity: 0.5, padding: '20px' }}>No customers found</td></tr>
               ) : (
                 displayed.map(c => (
                   <tr key={c.id}>
                     <td style={{ opacity: 0.5, fontSize: '11px' }}>#{String(c.id).slice(-5)}</td>
                     <td style={{ fontWeight: '600' }}>{c.name || 'N/A'}</td>
                     <td>{c.phone || 'N/A'}</td>
-                    <td>{c.propertyId || '—'}</td>
+                    <td>{c.city || '—'}</td>
+                    <td>{c.budget ? `₹${Number(c.budget).toLocaleString('en-IN')}` : '—'}</td>
                     <td>{c.employeeId || 'Unassigned'}</td>
-                    <td>
-                      <span className={`tag ${visitBadge(c.visit)}`}>
-                        {c.visit || 'Pending'}
-                      </span>
+                    <td><span className={`tag ${statusBadge(c.status)}`}>{c.status || 'New'}</span></td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <button style={editBtnStyle} onClick={() => handleEdit(c)}>✏️</button>
+                      <button style={deleteBtnStyle} onClick={() => handleDelete(c.id)}>🗑️</button>
+                      <button style={viewBtnStyle} onClick={() => viewDetails(c)}>👁️</button>
                     </td>
                   </tr>
                 ))
@@ -877,115 +969,80 @@ function Customers({ customers, setCustomers }) {
 
 // ================= LEADS =================
 function Leads({ leads, setLeads }) {
-  const [form, setForm] = useState({ name: '', phone: '', source: 'Instagram', status: 'New' });
+  const emptyForm = { name: '', phone: '', source: 'Instagram', status: 'New' };
+  const [form, setForm] = useState(emptyForm);
+  const [editingItem, setEditingItem] = useState(null);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
 
+  const editBtnStyle = { padding:'4px 8px', fontSize:'12px', background:'transparent', border:'1px solid #ff7b00', color:'#ff7b00', borderRadius:'6px', cursor:'pointer', marginRight:'4px' };
+  const deleteBtnStyle = { padding:'4px 8px', fontSize:'12px', background:'transparent', border:'1px solid #d50000', color:'#d50000', borderRadius:'6px', cursor:'pointer' };
+
   const handleAdd = () => {
     if (!form.name || !form.phone) { alert('Name and phone are required.'); return; }
-    setLeads([{ id: generateId(), ...form }, ...leads]);
-    setForm({ name: '', phone: '', source: 'Instagram', status: 'New' });
+    setLeads(prev => [{ id: generateId(), ...form }, ...prev]);
+    setForm(emptyForm);
   };
+  const handleUpdate = () => {
+    if (!form.name || !form.phone) { alert('Name and phone are required.'); return; }
+    setLeads(prev => prev.map(l => String(l.id) === String(editingItem.id) ? { ...editingItem, ...form } : l));
+    setEditingItem(null); setForm(emptyForm);
+  };
+  const handleEdit = (item) => { setEditingItem(item); setForm({ name: item.name, phone: item.phone, source: item.source, status: item.status }); };
+  const handleDelete = (id) => { if (window.confirm('Are you sure you want to delete?')) setLeads(prev => prev.filter(item => String(item.id) !== String(id))); };
 
   const statusBadge = (status) => {
     if (status === 'Contacted') return 'blue';
     if (status === 'Converted') return 'green';
-    return 'yellow'; // New default
+    return 'yellow';
   };
 
-  const filtered = leads
-    .filter(l => {
-      const matchSearch =
-        l.name?.toLowerCase().includes(search.toLowerCase()) ||
-        l.phone?.includes(search);
-      const matchFilter = filter === 'All' || l.status === filter;
-      return matchSearch && matchFilter;
-    });
+  const filtered = leads.filter(l => {
+    const matchSearch = l.name?.toLowerCase().includes(search.toLowerCase()) || l.phone?.includes(search);
+    const matchFilter = filter === 'All' || l.status === filter;
+    return matchSearch && matchFilter;
+  });
 
   return (
     <div className="container">
-
-      {/* Add Lead Form */}
       <div className="card">
-        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>Add Lead</h3>
+        <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>{editingItem ? '✏️ Edit Lead' : 'Add Lead'}</h3>
         <div className="formGrid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
-          <input
-            placeholder="Name"
-            value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
-            style={{ marginTop: 0 }}
-          />
-          <input
-            placeholder="Phone"
-            value={form.phone}
-            onChange={e => setForm({ ...form, phone: e.target.value })}
-            style={{ marginTop: 0 }}
-          />
-          <select
-            value={form.source}
-            onChange={e => setForm({ ...form, source: e.target.value })}
-            style={{ marginTop: 0 }}
-          >
-            <option>Instagram</option>
-            <option>Facebook</option>
-            <option>Referral</option>
+          <input placeholder="Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={{ marginTop: 0 }} />
+          <input placeholder="Phone" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} style={{ marginTop: 0 }} />
+          <select value={form.source} onChange={e => setForm({ ...form, source: e.target.value })} style={{ marginTop: 0 }}>
+            <option>Instagram</option><option>Facebook</option><option>Referral</option>
           </select>
-          <select
-            value={form.status}
-            onChange={e => setForm({ ...form, status: e.target.value })}
-            style={{ marginTop: 0 }}
-          >
-            <option>New</option>
-            <option>Contacted</option>
-            <option>Converted</option>
+          <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={{ marginTop: 0 }}>
+            <option>New</option><option>Contacted</option><option>Converted</option>
           </select>
         </div>
-        <button className="addBtn" onClick={handleAdd} style={{ marginTop: '16px' }}>
-          + Add Lead
-        </button>
+        {editingItem ? (
+          <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+            <button className="addBtn" onClick={handleUpdate} style={{ marginTop: 0 }}>✔ Update Lead</button>
+            <button className="addBtn" onClick={() => { setEditingItem(null); setForm(emptyForm); }} style={{ marginTop: 0, background: '#555' }}>Cancel</button>
+          </div>
+        ) : (
+          <button className="addBtn" onClick={handleAdd} style={{ marginTop: '16px' }}>+ Add Lead</button>
+        )}
       </div>
 
-      {/* Leads List */}
       <div className="card">
         <h3 style={{ color: 'red', marginTop: 0, textAlign: 'center' }}>Leads List</h3>
-
-        {/* Search + Filter row */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
-          <input
-            placeholder="Search by name or phone"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ flex: 1, marginTop: 0, minWidth: '180px' }}
-          />
-          <select
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-            style={{ marginTop: 0, width: '160px', flexShrink: 0 }}
-          >
-            <option>All</option>
-            <option>New</option>
-            <option>Contacted</option>
-            <option>Converted</option>
+          <input placeholder="Search by name or phone" value={search} onChange={e => setSearch(e.target.value)} style={{ flex: 1, marginTop: 0, minWidth: '180px' }} />
+          <select value={filter} onChange={e => setFilter(e.target.value)} style={{ marginTop: 0, width: '160px', flexShrink: 0 }}>
+            <option>All</option><option>New</option><option>Contacted</option><option>Converted</option>
           </select>
         </div>
-
-        {/* Table */}
         <div className="tableWrapper">
-          <table className="attendanceTable" style={{ minWidth: '600px' }}>
+          <table className="attendanceTable" style={{ minWidth: '700px' }}>
             <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Source</th>
-                <th>Status</th>
-              </tr>
+              <tr><th>ID</th><th>Name</th><th>Phone</th><th>Source</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', opacity: 0.5, padding: '20px' }}>No leads found</td>
-                </tr>
+                <tr><td colSpan={6} style={{ textAlign: 'center', opacity: 0.5, padding: '20px' }}>No leads found</td></tr>
               ) : (
                 filtered.map(l => (
                   <tr key={l.id}>
@@ -993,10 +1050,10 @@ function Leads({ leads, setLeads }) {
                     <td style={{ fontWeight: '600' }}>{l.name}</td>
                     <td>{l.phone}</td>
                     <td>{l.source}</td>
-                    <td>
-                      <span className={`tag ${statusBadge(l.status)}`}>
-                        {l.status}
-                      </span>
+                    <td><span className={`tag ${statusBadge(l.status)}`}>{l.status}</span></td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <button style={editBtnStyle} onClick={() => handleEdit(l)}>✏️</button>
+                      <button style={deleteBtnStyle} onClick={() => handleDelete(l.id)}>🗑️</button>
                     </td>
                   </tr>
                 ))
@@ -1005,7 +1062,6 @@ function Leads({ leads, setLeads }) {
           </table>
         </div>
       </div>
-
     </div>
   );
 }
